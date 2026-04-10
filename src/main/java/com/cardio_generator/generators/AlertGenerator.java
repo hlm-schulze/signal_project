@@ -4,15 +4,36 @@ import java.util.Random;
 
 import com.cardio_generator.outputs.OutputStrategy;
 
+/**
+ * Implementation of PatientDataGenerator that simulates alerts for patients
+ * Each patient has a boolean state indicating whether an alert is currently active (pressed) or not (resolved)
+ * Models real-world alarm systems
+ */
 public class AlertGenerator implements PatientDataGenerator {
 
-    private static final Random randomGenerator = new Random(); //made private since only AlertGenerator uses it
+    //made private since only AlertGenerator uses it
+    private static final Random randomGenerator = new Random(); 
+
     private boolean[] alertStates; // false = resolved, true = pressed
 
+    /**
+     * Constructs new AlertGenerator with the specified number of patients
+     * All patients start with no active alerts (all states initialized to false)
+     * 
+     * @param patientCount  number of patients for whom to generate alert data
+     */
     public AlertGenerator(int patientCount) {
         alertStates = new boolean[patientCount + 1]; //changed to camelCase (all the following instances as well): AlertStates -> alertStates
     }
 
+    /**
+     * Generates alert data for the specified patient
+     * If an alert is currently active for the patient, there is a 90% chance that it will be resolved in the next generation cycle
+     * If no alert is currently active, one may be triggered based on a Poisson process with a specified average rate (lambda)
+     * 
+     * @param patientId ID of the patient for whom to generate data
+     * @param outputStrategy Strategy to use for outputting generated data
+     */
     @Override
     public void generate(int patientId, OutputStrategy outputStrategy) {
         try {
