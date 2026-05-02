@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import com.alerts.AlertGenerator;
+import com.alerts.AlertManager;
 
 /**
  * Manages storage and retrieval of patient data within a healthcare monitoring
@@ -76,6 +77,23 @@ public class DataStorage {
     }
 
     /**
+     * Deletes all records for a specific patient whose timestamp is strictly before given cutoff, enforcing the system's data-retention policy
+     * Delegates actual removal to {@link Patient#deleteRecordsBefore(long)}
+     * If no patient exists with given ID, method returns 0
+     *
+     * @param patientId the unique identifier of the patient whose old records should be purged
+     * @param cutoffTime records with a timestamp strictly before value (milliseconds since UNIX epoch) will be removed
+     * @return number of records that were deleted, or 0 if patient was not found
+     */
+    public int deleteRecordsBefore(int patientId, long cutoffTime) {
+        Patient patient = patientMap.get(patientId);
+        if (patient == null) {
+            return 0;
+        }
+        return patient.deleteRecordsBefore(cutoffTime);
+    }
+
+    /**
      * The main method for the DataStorage class.
      * Initializes the system, reads data into storage, and continuously monitors
      * and evaluates patient data.
@@ -83,13 +101,11 @@ public class DataStorage {
      * @param args command line arguments
      */
     public static void main(String[] args) {
-        // DataReader is not defined in this scope, should be initialized appropriately.
-        // DataReader reader = new SomeDataReaderImplementation("path/to/data");
         DataStorage storage = new DataStorage();
 
-        // Assuming the reader has been properly initialized and can read data into the
-        // storage
-        // reader.readData(storage);
+        //As soon as actual real data exist, we can use this: 
+        //Data reader = new FileDataReader("path/to/data"); 
+        //reader.readData(stoarge); 
 
         // Example of using DataStorage to retrieve and print records for a patient
         List<PatientRecord> records = storage.getRecords(1, 1700000000000L, 1800000000000L);
@@ -101,7 +117,8 @@ public class DataStorage {
         }
 
         // Initialize the AlertGenerator with the storage
-        AlertGenerator alertGenerator = new AlertGenerator(storage);
+        AlertManager alertManager = new AlertManager();
+        AlertGenerator alertGenerator = new AlertGenerator(storage, alertManager);
 
         // Evaluate all patients' data to check for conditions that may trigger alerts
         for (Patient patient : storage.getAllPatients()) {

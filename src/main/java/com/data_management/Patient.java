@@ -45,14 +45,53 @@ public class Patient {
      * specified time range.
      * The method filters records based on the start and end times provided.
      *
-     * @param startTime the start of the time range, in milliseconds since UNIX
-     *                  epoch
+     * @param startTime the start of the time range, in milliseconds since UNIX epoch
      * @param endTime   the end of the time range, in milliseconds since UNIX epoch
-     * @return a list of PatientRecord objects that fall within the specified time
-     *         range
+     * @return a list of PatientRecord objects that fall within the specified time range
      */
     public List<PatientRecord> getRecords(long startTime, long endTime) {
         // TODO Implement and test this method
-        return patientRecords;
+        List<PatientRecord> recInTime = new ArrayList<PatientRecord>(); 
+
+        for (PatientRecord pR : patientRecords) {
+            long currTime = pR.getTimestamp(); 
+            if (currTime >= startTime && currTime <= endTime) {
+                recInTime.add(pR); 
+            }
+        }
+
+        return recInTime;
+    }
+
+    /**
+     * Deletes all records for timestamps strictly before specified cutoff, enforcing the system's data-retention policy
+     * -> Only records with timestamp lower than cutoff time are kept 
+     *
+     * @param cutoffTime records with timestamp strictly before this value (milliseconds since UNIX epoch) will be removed
+     * @return the number of records that were deleted
+     */
+    public int deleteRecordsBefore(long cutoffTime) {
+        List<PatientRecord> toKeep = new ArrayList<>();
+        int deletedCount = 0;
+ 
+        for (PatientRecord record : patientRecords) {
+            if (record.getTimestamp() < cutoffTime) {
+                deletedCount++;
+            } else {
+                toKeep.add(record);
+            }
+        }
+ 
+        patientRecords = toKeep;
+        return deletedCount;
+    }
+
+    /**
+     * Returns unique identifier for specified patient
+     *
+     * @return patient ID
+     */
+    public int getPatientId () {
+        return patientId;
     }
 }
