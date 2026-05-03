@@ -68,3 +68,41 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Student ID: I6441412
 - Student ID: I6431365
 
+## UML Models
+
+This repository includes UML class diagrams modeling four key subsystems of the CHMS.
+The diagrams can be found in the [`uml_models`](./uml_models) directory.
+
+### Subsystems Modeled
+
+1. Alert Generation System**
+Models real-time evaluation of patient vitals against predefined thresholds
+(systolic/diastolic pressure, blood saturation, ECG) within a 60-second evaluation
+window. `AlertGenerator` queries `DataStorage` for recent `PatientRecord`s and
+dispatches `Alert` objects via `AlertManager`, which maintains a list of active
+alerts and notifies medical staff.
+
+2. Data Storage System**
+Models secure, timestamped storage and retrieval of patient vital records.
+`DataStorage` maintains a map of `Patient` objects, each owning a list of
+`PatientRecord`s (fulfilling the role of `PatientData` in the subsystem design).
+`DataRetriever` provides a dedicated query interface for medical staff, including
+time-range queries, latest-n-records retrieval, and retention-policy enforcement
+via `purgeOldRecords()`. `FileDataReader` handles reading persisted data back
+into storage.
+
+3. Patient Identification System**
+Models the matching of incoming simulator IDs to verified hospital records.
+`PatientIdentifier` performs ID lookups against a registry of `HospitalPatient`
+objects, throwing `PatientMismatchException` on failure. `IdentityManager`
+oversees the process, maintaining a mismatch audit log and automatically
+archiving IDs that exceed a consecutive failure threshold.
+
+4. Data Access Layer**
+Models the interfaces to external data sources (TCP, WebSocket, file) behind a
+common `DataListener` interface. `TCPDataListener` and `WebSocketDataListener`
+receive streaming data and forward raw messages to `DataSourceAdapter` via
+`DataParser`, which handles both CSV and labeled formats. `FileDataListener`
+delegates to the existing `FileDataReader`. `DataSourceAdapter` is the single
+handoff point to `DataStorage`, keeping the access layer decoupled from storage.
+
