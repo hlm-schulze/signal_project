@@ -3,7 +3,6 @@ package Patterns;
 import com.Strategies.AlertStrategy;
 import com.Strategies.HeartRateStrategy;
 import org.junit.jupiter.api.Test;
-import com.alerts.BaseAlert;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class StrategyPatternTest {
