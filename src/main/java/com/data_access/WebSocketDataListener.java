@@ -64,12 +64,25 @@ public class WebSocketDataListener implements DataListener {
 
             @Override
             public void onMessage(String message) {
-                ADAPTER.parseAndStore(message, PARSER);
+                    try {
+                        ADAPTER.parseAndStore(message, PARSER);
+                    } catch (Exception e) {
+                        System.err.println("[WebSocketDataListener] Failed to process message: " + message);
+                        System.err.println(e.getMessage());
+                    }
             }
 
             @Override
             public void onClose(int code, String reason, boolean remote) {
                 System.out.println("[WebSocketDataListener] Connection closed: " + reason);
+
+                try {
+                    Thread.sleep(3000);
+                    System.out.println("[WebSocketDataListener] Attempting reconnection...");
+                    client.reconnect();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
             }
 
             @Override
